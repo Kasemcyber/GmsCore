@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build:
-    name: GmsCore + AndroidVending -hw
+    name: Build GmsCore Huawei
     runs-on: ubuntu-latest
 
     steps:
@@ -27,32 +27,18 @@ jobs:
       - name: Grant execute permission
         run: chmod +x ./gradlew
 
-      - name: Show build environment
-        run: |
-          echo "===== Java ====="
-          java -version
-
-          echo ""
-          echo "===== Gradle ====="
-          ./gradlew --version
-
-          echo ""
-          echo "===== Commit ====="
-          git log -1 --oneline
-
       - name: Build Release
         run: |
           ./gradlew --no-daemon assembleRelease
 
-      - name: Find Huawei APKs
+      - name: Show APK output
         run: |
-          echo "===== Huawei APKs ====="
+          echo "===== ALL APK FILES ====="
+          find . -type f -name "*.apk" -print
 
-          find . \
-            -type f \
-            -path "*/build/outputs/apk/*" \
-            -name "*-hw.apk" \
-            -print
+          echo ""
+          echo "===== APK DIRECTORIES ====="
+          find . -type d -path "*/build/outputs/apk/*" -print
 
       - name: Collect Huawei APKs
         run: |
@@ -61,18 +47,15 @@ jobs:
 
           find . \
             -type f \
-            -path "*/build/outputs/apk/*" \
             -name "*-hw.apk" \
             -exec cp {} artifacts/ \;
 
           echo ""
-          echo "===== Files ====="
-          ls -lh artifacts/
+          echo "===== COLLECTED APKs ====="
+          ls -lah artifacts/
 
-      - name: Verify APK signatures
+      - name: Verify APKs
         run: |
-          echo "===== APK signatures ====="
-
           for apk in artifacts/*.apk; do
             echo ""
             echo "========================================"
@@ -85,15 +68,15 @@ jobs:
               "$apk"
           done
 
-      - name: Calculate SHA-256
+      - name: SHA256
         run: |
-          echo "===== SHA-256 ====="
+          echo "===== SHA256 ====="
           sha256sum artifacts/*.apk
 
       - name: Upload Huawei APKs
         uses: actions/upload-artifact@v4
         with:
           name: microg-huawei-hw
-          path: artifacts/*.apk
+          path: artifacts/
           if-no-files-found: error
           retention-days: 30
