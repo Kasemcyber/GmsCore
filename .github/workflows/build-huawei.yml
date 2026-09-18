@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build:
-    name: Build GmsCore Huawei
+    name: Build GmsCore + AndroidVending
     runs-on: ubuntu-latest
 
     steps:
@@ -31,14 +31,10 @@ jobs:
         run: |
           ./gradlew --no-daemon assembleRelease
 
-      - name: Show APK output
+      - name: Show all APKs
         run: |
           echo "===== ALL APK FILES ====="
           find . -type f -name "*.apk" -print
-
-          echo ""
-          echo "===== APK DIRECTORIES ====="
-          find . -type d -path "*/build/outputs/apk/*" -print
 
       - name: Collect Huawei APKs
         run: |
@@ -54,7 +50,7 @@ jobs:
           echo "===== COLLECTED APKs ====="
           ls -lah artifacts/
 
-      - name: Verify APKs
+      - name: Verify APK signatures
         run: |
           for apk in artifacts/*.apk; do
             echo ""
@@ -80,3 +76,4 @@ jobs:
           path: artifacts/
           if-no-files-found: error
           retention-days: 30
+
